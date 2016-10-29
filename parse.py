@@ -123,7 +123,7 @@ class HeightQuestion(Question):
     self.id = 'height'
 
   def nouns(self):
-    return ['ft','feet','cm','in','inches','foot','feet']
+    return ['ft','feet','cm','in','inches','foot','feet','m']
 
   def parse(self, answer):
     for unit in self.nouns():
@@ -183,7 +183,7 @@ class QuestionTest(unittest.TestCase):
 
 
   def test_height(self):
-   for snt in ["I'm 6ft tall", "I'm 182cm tall", "I am 5ft 12inch tall"]:
+   for snt in ["1.82m tall", "I'm 6ft tall", "I'm 182cm tall", "I am 5ft 12inch tall"]:
      ur = parse_user_response(snt)
      self.assertFalse(ur == None)
      self.assertEquals(int(ur.qty), 182)
