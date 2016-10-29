@@ -126,6 +126,23 @@ class QuestionTest(unittest.TestCase):
     self.assertFalse(ur == None)
     self.assertEquals(int(ur.qty), 25)
 
+  def test_born(self):
+    ur = parse_user_response('I was born 1985')
+    self.assertFalse(ur == None)
+    self.assertEquals(int(ur.qty), 1985)
+
+  def test_coffee(self):
+    ur = parse_user_response('I drink 5 cups per day')
+    self.assertFalse(ur == None)
+    self.assertEquals(int(ur.qty), 5)
+
+  def test_gender(self):
+    ur = parse_user_response('I am male')
+    self.assertFalse(ur == None)
+    self.assertEquals(ur.qty, 'male')
+    for snt in ['Actually I am a male', 'No, I am a male']:
+      self.assertEquals(parse_user_response(snt).qty, 'male')
+
 unittest.main()
 
 #sentences=['I am 25 years old','I drink 5 cups per day','About 5 cups','I am male','I was born 1985']
