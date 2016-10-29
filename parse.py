@@ -108,15 +108,35 @@ class UserResponse:
   def __str__(self):
     return 'User input "%s" is handy for question %s, it contains qty=%s in %s units' % (self.answer, self.question, self.qty, self.unit)
 
-sentences=['I am 25 years old','I drink 5 cups per day','About 5 cups','I am male','I was born 1985']
+
+import unittest
+
 qs = [CoffeeQuestion(), GenderQuestion(), BirthYearQuestion(), AgeQuestion()]
-for sent in sentences:
-  ret = None
+def parse_user_response(sentence):
   for q in qs:
-    ret = q.parse(unicode(sent,encoding="utf-8"))
+    ret = q.parse(unicode(sentence,encoding="utf-8"))
     if ret:
       print(ret)
-      break
+      return ret
+  return None
 
-  if ret == None:
-      print("Cannot parse:" + sent)
+class QuestionTest(unittest.TestCase):
+  def test_age(self):
+    ur = parse_user_response('I am 25 years old')
+    self.assertFalse(ur == None)
+    self.assertEquals(int(ur.qty), 25)
+
+unittest.main()
+
+#sentences=['I am 25 years old','I drink 5 cups per day','About 5 cups','I am male','I was born 1985']
+#qs = [CoffeeQuestion(), GenderQuestion(), BirthYearQuestion(), AgeQuestion()]
+#for sent in sentences:
+#  ret = None
+#  for q in qs:
+#    ret = q.parse(unicode(sent,encoding="utf-8"))
+#    if ret:
+#      print(ret)
+#      break
+#
+#  if ret == None:
+#      print("Cannot parse:" + sent)
