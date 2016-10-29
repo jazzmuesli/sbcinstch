@@ -117,6 +117,7 @@ class UserResponse:
   def __str__(self):
     return 'User input "%s" is handy for question %s, it contains qty=%s in %s units' % (self.answer, self.question, self.qty, self.unit)
 
+# git clone https://github.com/florentsailing/fs-units && python setup.py install
 import fsunits
 class HeightQuestion(Question):
   def __init(self):
