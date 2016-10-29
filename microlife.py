@@ -19,8 +19,17 @@ class MicrolifeCalculator:
     # TODO: really? you can drink 1130 units and it's the same damage as 5 units?
     return 1.0 - min(x-1,5) * (0.5 if self.is_male else 1)
 
-  
+import unittest
+
 calc = MicrolifeCalculator()
-print(calc.gender('male'))
-print(calc.smoking(17))
-print(calc.alcohol(1130))
+class MicrolifeCalculatorTest(unittest.TestCase):
+  def test_gender(self): 
+    self.assertEquals(calc.gender('male'), -4)
+
+  def test_smoking(self):
+    self.assertEquals(calc.smoking(17), -10)
+
+  def test_alcohol(self):
+    self.assertEquals(calc.alcohol(1130), -4)
+
+unittest.main()
