@@ -95,7 +95,7 @@ class AgeQuestion(Question):
     (0,100)
 
   def nouns(self):
-    return ['year']
+    return ['year', 'yrs', 'years' 'yr']
 
 class BirthYearQuestion(Question):
   def __init__(self):
@@ -119,12 +119,14 @@ class UserResponse:
 
 # git clone https://github.com/florentsailing/fs-units && python setup.py install
 import fsunits
+
 class HeightQuestion(Question):
   def __init(self):
     self.id = 'height'
 
   def nouns(self):
-    return ['ft','feet','cm','in','inches','foot','feet','m']
+    return ['ft','feet', 'foot','in','inches','inch', 'inchs',
+		'm','meter', 'meters', 'cm', 'cms']
 
   def parse(self, answer):
     for unit in self.nouns():
@@ -164,6 +166,10 @@ class QuestionTest(unittest.TestCase):
     ur = parse_user_response('I am 25 years old')
     self.assertFalse(ur == None)
     self.assertEquals(int(ur.qty), 25)
+    for snt in ["1.82 yrs", "I'm 18", "I'm  63 YEARS", "I am 12 year old",
+		"I likes spaces 6yrs"]:
+      ur = parse_user_response(snt)
+      self.assertFalse(ur == None)
 
   def test_born(self):
     ur = parse_user_response('I was born 1985')
@@ -184,7 +190,8 @@ class QuestionTest(unittest.TestCase):
 
 
   def test_height(self):
-   for snt in ["1.82m tall", "I'm 6ft tall", "I'm 182cm tall", "I am 5ft 12inch tall"]:
+   for snt in ["1.82m tall", "I'm 6ft tall", "I'm 182cm tall", "I am 5ft 12inch tall",
+		"I likes spaces 6 ft up", "my height is 6.0ft short"]:
      ur = parse_user_response(snt)
      self.assertFalse(ur == None)
      self.assertEquals(int(ur.qty), 182)
