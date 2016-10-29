@@ -54,7 +54,6 @@ class GenderQuestion(Question):
     self.id = 'coffee'
 
   def parse_stemmed_words(self,answer, words):
-    print("words:", words)
     gender = None
     for word in words:
       if re.search('man|male|buy|guy', word):
@@ -108,16 +107,34 @@ class UserResponse:
   def __str__(self):
     return 'User input "%s" is handy for question %s, it contains qty=%s in %s units' % (self.answer, self.question, self.qty, self.unit)
 
+import fsunits
+class HeightQuestion(Question):
+  def __init(self):
+    self.id = 'height'
+
+  def nouns(self):
+    return ['ft','feet','cm','in','inches','foot','feet']
+
+  def parse(self, answer):
+    for unit in self.nouns():
+      answer = re.sub(r"([0-9.]+)" + unit, "\\1 " + unit, answer)
+      print("answer:" + answer)
+    ur = Question.parse(self,answer)
+    if ur:
+      qty = fsunits.convert_distance(float(ur.qty), to_unit='cm', from_unit=ur.unit)
+      return UserResponse(ur.question, ur.answer, qty, 'cm')
+    return ur
 
 import unittest
 
-qs = [CoffeeQuestion(), GenderQuestion(), BirthYearQuestion(), AgeQuestion()]
+qs = [CoffeeQuestion(), GenderQuestion(), BirthYearQuestion(), AgeQuestion(), HeightQuestion()]
 def parse_user_response(sentence):
   for q in qs:
     ret = q.parse(unicode(sentence,encoding="utf-8"))
     if ret:
       print(ret)
       return ret
+  print "ERROR: ", sentence, " cannot be parsed"
   return None
 
 class QuestionTest(unittest.TestCase):
@@ -143,17 +160,12 @@ class QuestionTest(unittest.TestCase):
     for snt in ['Actually I am a male', 'No, I am a male']:
       self.assertEquals(parse_user_response(snt).qty, 'male')
 
+
+  def test_height(self):
+   for snt in ["I'm 6ft tall", "I'm 182cm tall"]:
+     ur = parse_user_response(snt)
+     self.assertFalse(ur == None)
+     self.assertEquals(int(ur.qty), 182)
+
 unittest.main()
 
-#sentences=['I am 25 years old','I drink 5 cups per day','About 5 cups','I am male','I was born 1985']
-#qs = [CoffeeQuestion(), GenderQuestion(), BirthYearQuestion(), AgeQuestion()]
-#for sent in sentences:
-#  ret = None
-#  for q in qs:
-#    ret = q.parse(unicode(sent,encoding="utf-8"))
-#    if ret:
-#      print(ret)
-#      break
-#
-#  if ret == None:
-#      print("Cannot parse:" + sent)
