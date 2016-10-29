@@ -33,20 +33,30 @@ class Question:
 
   def parse_stemmed_words(self, answer, words):
     ns = self.nouns()
+    triples = []
     for i in range(len(words)):
       word = words[i]
       prev_word = as_number('' if i < 1 else words[i-1])
       next_word = as_number('' if i >= len(words)-1 else words[i+1])
- 
-      if word in ns:
-        print('Found: ',word, prev_word, next_word)
-        qty = None
-        if prev_word:
-          qty = prev_word
-        if next_word:
-          qty = next_word
-        if qty:
-          return UserResponse(self,answer, qty, word)
+      triples.append([word, prev_word, next_word])
+    return self.parse_triples(answer, words, triples, ns)
+
+  def parse_triples(self, answer, words, triples, ns):
+    for word, prev_word, next_word in triples:
+      ur = self.parse_neighbour_words(answer, ns, word, prev_word, next_word)
+      if ur:
+        return ur
+
+  def parse_neighbour_words(self, answer, ns, word, prev_word, next_word): 
+    if word in ns:
+      print('Found: ',word, prev_word, next_word)
+      qty = None
+      if prev_word:
+        qty = prev_word
+      if next_word:
+        qty = next_word
+      if qty:
+        return UserResponse(self,answer, qty, word)
     return None
   
 class GenderQuestion(Question):
@@ -119,11 +129,22 @@ class HeightQuestion(Question):
     for unit in self.nouns():
       answer = re.sub(r"([0-9.]+)" + unit, "\\1 " + unit, answer)
       print("answer:" + answer)
-    ur = Question.parse(self,answer)
-    if ur:
-      qty = fsunits.convert_distance(float(ur.qty), to_unit='cm', from_unit=ur.unit)
+    return Question.parse(self,answer)
+
+  def parse_triples(self, answer, words, triples, ns):
+    urs = []
+    for word, prev_word, next_word in triples:
+      ur = self.parse_neighbour_words(answer, ns, word, prev_word, next_word)
+      if ur:
+        print("ur:",str(ur))
+        qty = fsunits.convert_distance(float(ur.qty), to_unit='cm', from_unit=ur.unit)
+        urs.append(UserResponse(ur.question, ur.answer, qty, 'cm'))
+    qty = 0.0
+    for ur in urs:
+      qty += ur.qty
+    if len(urs) > 0:
       return UserResponse(ur.question, ur.answer, qty, 'cm')
-    return ur
+    return None
 
 import unittest
 
@@ -162,7 +183,7 @@ class QuestionTest(unittest.TestCase):
 
 
   def test_height(self):
-   for snt in ["I'm 6ft tall", "I'm 182cm tall"]:
+   for snt in ["I'm 6ft tall", "I'm 182cm tall", "I am 5ft 12inch tall"]:
      ur = parse_user_response(snt)
      self.assertFalse(ur == None)
      self.assertEquals(int(ur.qty), 182)
